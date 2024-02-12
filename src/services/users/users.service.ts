@@ -1,5 +1,10 @@
-import { IncomingMessage, ServerResponse } from "http";
+import { ServerResponse } from "http";
 import { UserRepository } from "../../../src/repositories";
+import { UserMapper } from "../../mappers/user.mapper";
+import { CustomResponse } from "../../../src/router/model";
+import { UserEntityModel } from "src/entities/user/model";
+import { UserDto } from "../../../src/dto";
+import { StatusCodes } from "../../../src/enums";
 
 export class UserService {
     userRepository: UserRepository;
@@ -8,87 +13,127 @@ export class UserService {
         this.userRepository = new UserRepository();
     }
 
-    public async getUsers(req: IncomingMessage, res: ServerResponse) {
+    public async getUsers(): Promise<CustomResponse<UserEntityModel[]>> {
         try {
-            console.log('getUsers');
             const users = await this.userRepository.findAll();
-            console.log({users});
-            res.statusCode = 200;
-            
-            res.end(JSON.stringify(users));
-        } catch (error) {
-            res.statusCode = 500;
-            res.end(JSON.stringify({ error }));
-        }
-    }
-    
-    public async getUser(id: string, res: ServerResponse) {
-        try {
-            console.log('getUser');
-            const user = await this.userRepository.findOne(id);
-            console.log({user});
 
-            if (!user) {
-                res.statusCode = 404;
-                res.end(JSON.stringify({ error: 'User not found' }));
-                return;
+            const response = {
+                data: users,
+                statusCode: StatusCodes.OK,
+                message: 'Success'
             }
 
-            res.statusCode = 200;
-            res.end(JSON.stringify(user));
+            return response;
         } catch (error) {
-            res.statusCode = 500;
-            res.end(JSON.stringify({ error }));
+            return {
+                data: [],
+                statusCode: StatusCodes.BAD_REQUEST,
+                message: (error as Error).message
+            }
         }
     }
 
-    public async createUser(user: any, res: ServerResponse) {
+    public async getUser(id: string): Promise<CustomResponse<UserEntityModel | null>> {
         try {
-            const result = await this.userRepository.create(user);
-            res.statusCode = 200;
-            res.end(JSON.stringify(result))
+            const user = await this.userRepository.findOne(id);
+
+            if (!user) {
+                return {
+                    data: null,
+                    statusCode: StatusCodes.NOT_FOUND,
+                    message: 'User not found'
+                }
+            }
+
+            return {
+                data: user,
+                statusCode: StatusCodes.OK,
+                message: 'Success'
+            }
         } catch (error) {
-            console.log({error})
-            res.statusCode = 500;
-            res.end(JSON.stringify({ error }));
+            return {
+                data: null,
+                statusCode: StatusCodes.BAD_REQUEST,
+                message: (error as Error).message
+            }
         }
     }
 
-    public async updateUser(id: string, user: any, res: ServerResponse) {
+    public async createUser(user: UserDto): Promise<CustomResponse<UserEntityModel | null>> {
+        try {
+            const result = await this.userRepository.create(UserMapper.toEntity(user));
+
+            return {
+                data: result,
+                statusCode: StatusCodes.CREATED,
+                message: 'User created'
+            }
+        } catch (error) {
+            return {
+                data: null,
+                statusCode: StatusCodes.BAD_REQUEST,
+                message: (error as Error).message
+            }
+        }
+    }
+
+    public async updateUser(
+        id: UserEntityModel['id'],
+        user: UserDto
+    ): Promise<CustomResponse<UserEntityModel | null>> {
+
         const userExists = await this.userRepository.findOne(id);
 
         if (!userExists) {
-            res.statusCode = 404;
-            res.end(JSON.stringify({ error: 'User not found' }));
-            return;
+            return {
+                data: null,
+                statusCode: StatusCodes.NOT_FOUND,
+                message: 'User not found'
+            }
         }
 
         try {
             const result = await this.userRepository.update(id, user);
-            res.statusCode = 200;
-            res.end(JSON.stringify(result))
+            return {
+                data: result,
+                statusCode: StatusCodes.OK,
+                message: 'User updated'
+            }
         } catch (error) {
-            res.statusCode = 500;
-            res.end(JSON.stringify({ error }));
+            return {
+                data: null,
+                statusCode: StatusCodes.BAD_REQUEST,
+                message: (error as Error).message
+            }
         }
     }
 
-    public async deleteUser(id: string, res: ServerResponse) {
+    public async deleteUser(
+        id: string
+    ): Promise<CustomResponse<UserEntityModel['id'] | null>> {
         const userExists = await this.userRepository.findOne(id);
 
         if (!userExists) {
-            res.statusCode = 404;
-            res.end(JSON.stringify({ error: 'User not found' }));
-            return;
+            return {
+                data: null,
+                statusCode: StatusCodes.NOT_FOUND,
+                message: 'User not found'
+            }
         }
 
         try {
             const result = await this.userRepository.delete(id);
-            res.statusCode = 200;
-            res.end(JSON.stringify(result))
+            return {
+                data: result,
+                statusCode: StatusCodes.OK,
+                message: 'User deleted'
+            }
         } catch (error) {
-            res.statusCode = 500;
-            res.end(JSON.stringify({ error }));
+            return {
+                data: null,
+                statusCode: StatusCodes.BAD_REQUEST,
+                message: (error as Error).message
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 import { isArrayOfStrings, isNumber, isString, isRequired } from '../../validate';
-import uuid from 'uuid'
+import { UserEntityModel } from './model';
 
-export class UserEntity {
+export class UserEntity implements UserEntityModel{
     id: string;
     username: string;
     age: number;
@@ -10,7 +10,7 @@ export class UserEntity {
     constructor(id: string, username: string, age: number, hobbies: string[]) {
         this.validateFields();
 
-        this.id = uuid.v4();
+        this.id = id;
         this.username = username;
         this.age = age;
         this.hobbies = hobbies;

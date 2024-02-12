@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { METHODS } from 'src/enums';
+import { METHODS, StatusCodes } from '../../src/enums';
 
 type RouteHandler = (req: IncomingMessage, res: ServerResponse) => void;
 
@@ -10,8 +10,14 @@ interface RouteModel {
 }
 
 interface RouterModel {
-    addRoute(method: METHODS, path: string, handler: RouteHandler): void;
-    route(req: IncomingMessage, res: ServerResponse): void;
+  addRoute(method: METHODS, path: string, handler: RouteHandler): void;
+  route(req: IncomingMessage, res: ServerResponse): void;
 }
 
-export { RouteHandler, RouteModel, RouterModel };
+interface CustomResponse<T> {
+  statusCode: StatusCodes;
+  data: T;
+  message: string;
+}
+
+export { RouteHandler, RouteModel, RouterModel, CustomResponse };

@@ -19,8 +19,6 @@ export class App implements AppModel{
         this.router.addRoute(METHODS.POST, Routes.USERS, this.userController.createUser);
         this.router.addRoute(METHODS.PUT, Routes.USER, this.userController.updateUser);
         this.router.addRoute(METHODS.DELETE, Routes.USER, this.userController.deleteUser);
-
-        console.log({routes: this.router.routes})
     }
 
     private handleRequest(req: IncomingMessage, res: ServerResponse): void {

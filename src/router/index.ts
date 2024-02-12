@@ -29,8 +29,6 @@ export class Router implements RouterModel {
             return;
         }
 
-        console.log({ method, url })
-
         return this.routes.find((route) => route.method === method && this.validatePath(route.path, url));
     }
 
@@ -58,5 +56,4 @@ export class Router implements RouterModel {
             return patternSegment === urlSegment;
         }
     }
-    
 }

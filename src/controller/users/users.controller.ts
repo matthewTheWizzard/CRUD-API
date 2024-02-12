@@ -1,5 +1,8 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { UserService } from "../../../src/services";
+import { JsonReturn } from "../../../src/router/utils";
+import { StatusCodes } from "../../../src/enums";
+import { UserDto } from "../../../src/dto";
 
 export class UserContoller {
     userService: UserService;
@@ -13,20 +16,26 @@ export class UserContoller {
         this.deleteUser = this.deleteUser.bind(this);
     }
 
-    public async getAllUsers(req: IncomingMessage, res: ServerResponse) {
-        await this.userService.getUsers(req, res);
+    public async getAllUsers(_: IncomingMessage, res: ServerResponse) {
+        const result = await this.userService.getUsers();
+
+        JsonReturn(res, result);
     }
 
     public async getUser(req: IncomingMessage, res: ServerResponse) {
         const id = req.url?.split('/')[3];
 
         if (!id) {
-            res.statusCode = 400;
-            res.end(JSON.stringify({ error: 'User id is required' }));
+            JsonReturn(res, {
+                data: null,
+                statusCode: StatusCodes.BAD_REQUEST,
+                message: 'User id is required'
+            });
             return;
         }
 
-        await this.userService.getUser(id, res);
+        const result = await this.userService.getUser(id);
+        JsonReturn(res, result);
     }
 
     public async createUser(req: IncomingMessage, res: ServerResponse) {
@@ -37,14 +46,17 @@ export class UserContoller {
         });
 
         req.on('end', async () => {
-            console.log({body})
             try {
-                const user = JSON.parse(body);
+                const user: UserDto = JSON.parse(body);
+                const result = await this.userService.createUser(user);
 
-                await this.userService.createUser(user, res);
+                JsonReturn(res, result);
             } catch (error) {
-                res.statusCode = 400;
-                res.end(JSON.stringify({ error: 'Invalid JSON in the request body' }));
+                JsonReturn(res, {
+                    data: null,
+                    statusCode: StatusCodes.BAD_REQUEST,
+                    message: 'Invalid JSON in the request body'
+                });
             }
         });
     }
@@ -53,8 +65,11 @@ export class UserContoller {
         const id = req.url?.split('/')[3];
 
         if (!id) {
-            res.statusCode = 400;
-            res.end(JSON.stringify({ error: 'User id is required' }));
+            JsonReturn(res, {
+                data: null,
+                statusCode: StatusCodes.BAD_REQUEST,
+                message: 'User id is required'
+            });
             return;
         }
 
@@ -66,12 +81,16 @@ export class UserContoller {
 
         req.on('end', async () => {
             try {
-                const user = JSON.parse(body);
+                const user: UserDto = JSON.parse(body);
 
-                await this.userService.updateUser(id, user, res);
+                const result = await this.userService.updateUser(id, user);
+                JsonReturn(res, result);
             } catch (error) {
-                res.statusCode = 400;
-                res.end(JSON.stringify({ error: 'Invalid JSON in the request body' }));
+                JsonReturn(res, {
+                    data: null,
+                    statusCode: StatusCodes.BAD_REQUEST,
+                    message: 'Invalid JSON in the request body'
+                });
             }
         });
     }
@@ -80,11 +99,15 @@ export class UserContoller {
         const id = req.url?.split('/')[3];
 
         if (!id) {
-            res.statusCode = 400;
-            res.end(JSON.stringify({ error: 'User id is required' }));
+            JsonReturn(res, {
+                data: null,
+                statusCode: StatusCodes.BAD_REQUEST,
+                message: 'User id is required'
+            })
             return;
         }
 
-        await this.userService.deleteUser(id, res);
+        const result = await this.userService.deleteUser(id);
+        JsonReturn(res, result);
     }
 }
