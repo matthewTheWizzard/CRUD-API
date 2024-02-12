@@ -36,13 +36,13 @@ export class UserService {
     public async getUser(id: string): Promise<CustomResponse<UserEntityModel | null>> {
         try {
             if (!isUUID(id)) {
-                throw new Error('Invalid UUID');
+                throw new Error('Invalid UUID', { cause: StatusCodes.BAD_REQUEST});
             }
 
             const user = await this.userRepository.findOne(id);
 
             if (!user) {
-                throw new Error('User not found');
+                throw new Error('User not found', { cause: StatusCodes.NOT_FOUND});
             }
 
             return {
@@ -53,7 +53,7 @@ export class UserService {
         } catch (error) {
             return {
                 data: null,
-                statusCode: StatusCodes.BAD_REQUEST,
+                statusCode: (error as Error).cause as StatusCodes || StatusCodes.BAD_REQUEST,
                 message: (error as Error).message
             }
         }
@@ -87,12 +87,12 @@ export class UserService {
     ): Promise<CustomResponse<UserEntityModel | null>> {
         try {
             if (!isUUID(id)) {
-                throw new Error('Invalid UUID');
+                throw new Error('Invalid UUID', { cause: StatusCodes.BAD_REQUEST});
             }
 
             const userExists = await this.userRepository.findOne(id);
             if (!userExists) {
-                throw new Error('User not found');
+                throw new Error('User not found', { cause: StatusCodes.NOT_FOUND});
             }
 
             const result = await this.userRepository.update(id, user);
@@ -105,7 +105,7 @@ export class UserService {
         } catch (error) {
             return {
                 data: null,
-                statusCode: StatusCodes.BAD_REQUEST,
+                statusCode: (error as Error).cause as StatusCodes || StatusCodes.BAD_REQUEST,
                 message: (error as Error).message
             }
         }
@@ -122,7 +122,7 @@ export class UserService {
             const userExists = await this.userRepository.findOne(id);
 
             if (!userExists) {
-                throw new Error('User not found');
+                throw new Error('User not found', { cause: StatusCodes.NOT_FOUND});
             }
 
             const result = await this.userRepository.delete(id);
@@ -135,7 +135,7 @@ export class UserService {
         } catch (error) {
             return {
                 data: null,
-                statusCode: StatusCodes.BAD_REQUEST,
+                statusCode: (error as Error).cause as StatusCodes || StatusCodes.BAD_REQUEST,
                 message: (error as Error).message
             }
         }

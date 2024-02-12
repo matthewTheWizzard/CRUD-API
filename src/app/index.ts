@@ -5,7 +5,7 @@ import { METHODS, Routes } from '../../src/enums';
 import { UserContoller } from '../../src/controller';
 
 export class App implements AppModel{
-    private server: http.Server;
+    server: http.Server;
     private router: Router;
     private userController: UserContoller;
 
@@ -31,5 +31,4 @@ export class App implements AppModel{
             console.log(`Server running at http://localhost:${port}`);
         });
     }
-
 }
