@@ -1,10 +1,10 @@
-import { ServerResponse } from "http";
 import { UserRepository } from "../../../src/repositories";
 import { UserMapper } from "../../mappers/user.mapper";
 import { CustomResponse } from "../../../src/router/model";
 import { UserEntityModel } from "src/entities/user/model";
 import { UserDto } from "../../../src/dto";
 import { StatusCodes } from "../../../src/enums";
+import { validate as isUUID } from "uuid";
 
 export class UserService {
     userRepository: UserRepository;
@@ -35,14 +35,14 @@ export class UserService {
 
     public async getUser(id: string): Promise<CustomResponse<UserEntityModel | null>> {
         try {
+            if (!isUUID(id)) {
+                throw new Error('Invalid UUID');
+            }
+
             const user = await this.userRepository.findOne(id);
 
             if (!user) {
-                return {
-                    data: null,
-                    statusCode: StatusCodes.NOT_FOUND,
-                    message: 'User not found'
-                }
+                throw new Error('User not found');
             }
 
             return {
@@ -63,6 +63,10 @@ export class UserService {
         try {
             const result = await this.userRepository.create(UserMapper.toEntity(user));
 
+            if (!result) {
+                throw new Error('username, age and hobbies are required fields');
+            }
+
             return {
                 data: result,
                 statusCode: StatusCodes.CREATED,
@@ -81,19 +85,18 @@ export class UserService {
         id: UserEntityModel['id'],
         user: UserDto
     ): Promise<CustomResponse<UserEntityModel | null>> {
-
-        const userExists = await this.userRepository.findOne(id);
-
-        if (!userExists) {
-            return {
-                data: null,
-                statusCode: StatusCodes.NOT_FOUND,
-                message: 'User not found'
-            }
-        }
-
         try {
+            if (!isUUID(id)) {
+                throw new Error('Invalid UUID');
+            }
+
+            const userExists = await this.userRepository.findOne(id);
+            if (!userExists) {
+                throw new Error('User not found');
+            }
+
             const result = await this.userRepository.update(id, user);
+
             return {
                 data: result,
                 statusCode: StatusCodes.OK,
@@ -111,18 +114,19 @@ export class UserService {
     public async deleteUser(
         id: string
     ): Promise<CustomResponse<UserEntityModel['id'] | null>> {
-        const userExists = await this.userRepository.findOne(id);
-
-        if (!userExists) {
-            return {
-                data: null,
-                statusCode: StatusCodes.NOT_FOUND,
-                message: 'User not found'
-            }
-        }
-
         try {
+            if (!isUUID(id)) {
+                throw new Error('Invalid UUID');
+            }
+
+            const userExists = await this.userRepository.findOne(id);
+
+            if (!userExists) {
+                throw new Error('User not found');
+            }
+
             const result = await this.userRepository.delete(id);
+
             return {
                 data: result,
                 statusCode: StatusCodes.OK,

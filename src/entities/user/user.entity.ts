@@ -8,7 +8,7 @@ export class UserEntity implements UserEntityModel{
     hobbies: string[];
 
     constructor(id: string, username: string, age: number, hobbies: string[]) {
-        this.validateFields();
+        this.validateFields(id, username, age, hobbies);
 
         this.id = id;
         this.username = username;
@@ -16,20 +16,20 @@ export class UserEntity implements UserEntityModel{
         this.hobbies = hobbies;
     }
 
-    private validateFields(): boolean {
-        const validUsername = isString(this.username) && isRequired(this.username);
+    private validateFields(id: string, username: string, age: number, hobbies: string[]): boolean {
+        const validUsername = isString(username) && isRequired(username);
 
         if (!validUsername) {
             throw new Error('Invalid username');
         }
 
-        const validHobbies = isArrayOfStrings(this.hobbies) && isRequired(this.hobbies);
+        const validHobbies = isRequired(hobbies) && isArrayOfStrings(hobbies);
 
         if (!validHobbies) {
             throw new Error('Invalid hobbies');
         }
 
-        const validAge = isNumber(this.age) && isRequired(this.age);
+        const validAge = isRequired(age) && isNumber(age);
 
         if (!validAge) {
             throw new Error('Invalid age');

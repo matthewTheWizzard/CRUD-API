@@ -1,11 +1,13 @@
+import { UserEntity } from "../../../src/entities/user/user.entity";
 import { UserDto } from "../../../src/dto";
 import { DB } from "../../db";
-import { UserEntityModel } from "src/entities/user/model";
+import { UserEntityModel } from "../../../src/entities/user/model";
 
 export class UserRepository {
     public async create(user: UserEntityModel): Promise<UserEntityModel> {
-        DB.set(user.id, user);
-        return user;
+        const entity = new UserEntity(user.id, user.username, user.age, user.hobbies)
+        DB.set(user.id, entity);
+        return entity;
     }
 
     public async findAll(): Promise<UserEntityModel[]> {
