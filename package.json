@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start:dev": "ts-node-dev src",
+    "start:multi": "ts-node src/multi.ts",
     "start:prod": "webpack --config webpack.config.ts && node dist/index.js",
     "test": "jest"
   },

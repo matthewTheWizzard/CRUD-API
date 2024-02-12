@@ -1,6 +1,8 @@
 import request from "supertest";
 import { App } from "../../app";
 import { v4 as uuidv4 } from 'uuid';
+import { configDotenv } from "dotenv";
+configDotenv();
 
 let app: App;
 
